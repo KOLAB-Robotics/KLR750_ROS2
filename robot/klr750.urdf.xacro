@@ -1,0 +1,254 @@
+<?xml version="1.0"?>
+<robot name="kolab_klr750" xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <!-- ROS2 Control Handles -->
+  <!-- Velocity Control Handles -->
+  <!-- - front_left_wheel_joint -->
+  <!-- - front_right_wheel_joint -->
+  <!-- - rear_left_wheel_joint -->
+  <!-- - rear_right_wheel_joint -->
+
+  <!-- Position Control Handles -->
+  <!-- - front_steering -->
+  <!-- - rear_steering -->
+
+  <!-- Parameters -->
+  <xacro:property name="base_height" value="0.4475"/>
+  <xacro:property name="wheel_joint_scale" value="1.0 1.0 1.0"/>
+  <xacro:property name="wheel_motor_scale" value="1.0 1.0 1.0"/> <!-- Renamed from wheel_mesh_scale -->
+  <xacro:property name="wheel_mass" value="2.14704"/> <!-- Updated from wheel_massproperties.txt -->
+  <xacro:property name="wheel_inertia_ixx" value="7808856.34"/> <!-- Updated from wheel_massproperties.txt -->
+  <xacro:property name="wheel_inertia_ixy" value="0.02"/>
+  <xacro:property name="wheel_inertia_ixz" value="0.00"/>
+  <xacro:property name="wheel_inertia_iyy" value="7808856.25"/>
+  <xacro:property name="wheel_inertia_iyz" value="0.00"/>
+  <xacro:property name="wheel_inertia_izz" value="14738265.17"/>
+  <xacro:property name="wheel_motor_mass" value="0.59374"/> <!-- Updated from wheel_joint_massproperties.txt -->
+  <xacro:property name="wheel_motor_inertia_ixx" value="5701431.92"/> <!-- Updated from wheel_joint_massproperties.txt -->
+  <xacro:property name="wheel_motor_inertia_ixy" value="3276.80"/>
+  <xacro:property name="wheel_motor_inertia_ixz" value="695.43"/>
+  <xacro:property name="wheel_motor_inertia_iyy" value="519057.53"/>
+  <xacro:property name="wheel_motor_inertia_iyz" value="295489.54"/>
+  <xacro:property name="wheel_motor_inertia_izz" value="5930884.66"/>
+  <xacro:property name="base_mass" value="20.0"/> <!-- Updated from body_base_massproperties.txt -->
+  <xacro:property name="base_inertia_ixx" value="1057294884.96"/> <!-- Updated from body_base_massproperties.txt -->
+  <xacro:property name="base_inertia_ixy" value="-8291.44"/>
+  <xacro:property name="base_inertia_ixz" value="468.72"/>
+  <xacro:property name="base_inertia_iyy" value="1202061004.68"/>
+  <xacro:property name="base_inertia_iyz" value="-9523.02"/>
+  <xacro:property name="base_inertia_izz" value="1017291155.63"/>
+  <xacro:property name="front_left_wheel_xyz" value="0.275 0.18 0.2475"/>
+  <xacro:property name="front_right_wheel_xyz" value="0.275 -0.18 0.2475"/>
+  <xacro:property name="rear_left_wheel_xyz" value="-0.275 0.18 0.2475"/>
+  <xacro:property name="rear_right_wheel_xyz" value="-0.275 -0.18 0.2475"/>
+  <xacro:property name="wheel_motor_offset" value="0 0.04 -0.15"/> <!-- Renamed from wheel_mesh_offset -->
+
+  <!-- File paths -->
+  <xacro:property name="body_base_mesh" value="BODY_BASE.gltf"/>
+  <xacro:property name="wheel_joint_mesh" value="WHEEL_JOINT.gltf"/>
+  <xacro:property name="wheel_motor" value="WHEEL.gltf"/> <!-- Renamed from wheel_mesh -->
+
+  <!-- Macro for wheel setup -->
+  <xacro:macro name="wheel" params="name parent_link xyz rpy mesh_scale mass ixx ixy ixz iyy iyz izz">
+    <joint name="${name}_joint" type="continuous">
+      <parent link="${parent_link}"/>
+      <child link="${name}_link"/>
+      <origin xyz="${xyz}" rpy="${rpy}"/>
+      <axis xyz="0 0 1"/>
+    </joint>
+
+    <link name="${name}_link">
+      <visual>
+        <origin xyz="0.0 0.0 0.0" rpy="0 3.14 0"/>
+        <geometry>
+          <mesh filename="${wheel_joint_mesh}" scale="${mesh_scale}"/>
+        </geometry>
+      </visual>
+      <collision>
+        <origin xyz="0.0 0.0 0.0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="${wheel_joint_mesh}" scale="${mesh_scale}"/>
+        </geometry>
+      </collision>
+      <inertial>
+        <origin xyz="0.0 0.0 0.0" rpy="0 0 0"/>
+        <mass value="${mass}"/>
+        <inertia ixx="${ixx}" ixy="${ixy}" ixz="${ixz}" iyy="${iyy}" iyz="${iyz}" izz="${izz}"/>
+      </inertial>
+    </link>
+  </xacro:macro>
+
+  <!-- Macro for wheel motor setup -->
+  <xacro:macro name="wheel_motor" params="name parent_link offset mesh_scale mass ixx ixy ixz iyy iyz izz"> <!-- Renamed from wheel_mesh -->
+    <joint name="${name}_motor_joint" type="continuous"> <!-- Renamed joint -->
+      <parent link="${parent_link}"/>
+      <child link="${name}_motor_link"/> <!-- Renamed link -->
+      <origin xyz="${offset}" rpy="0 0 0"/>
+      <axis xyz="0 1 0"/>
+    </joint>
+
+    <link name="${name}_motor_link"> <!-- Renamed link -->
+      <visual>
+        <origin xyz="0.0 0.0 0.0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="${wheel_motor}" scale="${mesh_scale}"/> <!-- Updated filename -->
+        </geometry>
+      </visual>
+      <collision>
+        <origin xyz="0.0 0.0 0.0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="${wheel_motor}" scale="${mesh_scale}"/> <!-- Updated filename -->
+        </geometry>
+      </collision>
+      <inertial>
+        <origin xyz="0.0 0.0 0.0" rpy="0 0 0"/>
+        <mass value="${mass}"/>
+        <inertia ixx="${ixx}" ixy="${ixy}" ixz="${ixz}" iyy="${iyy}" iyz="${iyz}" izz="${izz}"/>
+      </inertial>
+    </link>
+  </xacro:macro>
+
+  <!-- Base link -->
+  <link name="base_link">
+    <visual>
+      <origin xyz="0.0 0.0 ${base_height}" rpy="3.14 0 3.14"/> <!-- Adjust rotation as needed -->
+      <geometry>
+        <mesh filename="${body_base_mesh}" scale="1.0 1.0 1.0"/> <!-- Adjust scale as needed -->
+      </geometry>
+    </visual>
+    <collision>
+      <origin xyz="0.0 0.0 0.0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="${body_base_mesh}" scale="1.0 1.0 1.0"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <origin xyz="0.01 -0.15656 0.0" rpy="0 0 0"/> <!-- Updated center of mass -->
+      <mass value="${base_mass}"/> <!-- Updated mass -->
+      <inertia ixx="${base_inertia_ixx}" ixy="${base_inertia_ixy}" ixz="${base_inertia_ixz}" iyy="${base_inertia_iyy}" iyz="${base_inertia_iyz}" izz="${base_inertia_izz}"/> <!-- Updated inertia -->
+    </inertial>
+  </link>
+
+  <!-- Front left wheel -->
+  <xacro:wheel name="front_left_wheel" parent_link="base_link" xyz="${front_left_wheel_xyz}" rpy="0 0 0" mesh_scale="${wheel_joint_scale}" mass="${wheel_mass}" ixx="${wheel_inertia_ixx}" ixy="${wheel_inertia_ixy}" ixz="${wheel_inertia_ixz}" iyy="${wheel_inertia_iyy}" iyz="${wheel_inertia_iyz}" izz="${wheel_inertia_izz}"/>
+  <xacro:wheel_motor name="front_left_wheel" parent_link="front_left_wheel_link" offset="${wheel_motor_offset}" mesh_scale="${wheel_motor_scale}" mass="${wheel_motor_mass}" ixx="${wheel_motor_inertia_ixx}" ixy="${wheel_motor_inertia_ixy}" ixz="${wheel_motor_inertia_ixz}" iyy="${wheel_motor_inertia_iyy}" iyz="${wheel_motor_inertia_iyz}" izz="${wheel_motor_inertia_izz}"/> <!-- Renamed from wheel_mesh -->
+
+  <!-- Front right wheel -->
+  <xacro:wheel name="front_right_wheel" parent_link="base_link" xyz="${front_right_wheel_xyz}" rpy="0 0 3.14" mesh_scale="${wheel_joint_scale}" mass="${wheel_mass}" ixx="${wheel_inertia_ixx}" ixy="${wheel_inertia_ixy}" ixz="${wheel_inertia_ixz}" iyy="${wheel_inertia_iyy}" iyz="${wheel_inertia_iyz}" izz="${wheel_inertia_izz}"/>
+  <xacro:wheel_motor name="front_right_wheel" parent_link="front_right_wheel_link" offset="${wheel_motor_offset}" mesh_scale="${wheel_motor_scale}" mass="${wheel_motor_mass}" ixx="${wheel_motor_inertia_ixx}" ixy="${wheel_motor_inertia_ixy}" ixz="${wheel_motor_inertia_ixz}" iyy="${wheel_motor_inertia_iyy}" iyz="${wheel_motor_inertia_iyz}" izz="${wheel_motor_inertia_izz}"/> <!-- Renamed from wheel_mesh -->
+
+  <!-- Front steering joint -->
+  <joint name="front_steering" type="continuous"> <!-- Renamed from front_left_wheel_joint -->
+    <parent link="base_link"/>
+    <child link="front_left_wheel_link"/>
+    <origin xyz="${front_left_wheel_xyz}" rpy="0 0 0"/>
+    <axis xyz="0 0 1"/>
+  </joint>
+
+  <!-- Front right wheel joint -->
+  <joint name="front_right_wheel_joint" type="continuous"> <!-- Returned to previous name -->
+    <parent link="base_link"/>
+    <child link="front_right_wheel_link"/>
+    <origin xyz="${front_right_wheel_xyz}" rpy="0 0 3.14"/>
+    <axis xyz="0 0 1"/>
+    <mimic joint="front_steering" multiplier="1.0" offset="0.0"/> <!-- Mimics front steering -->
+  </joint>
+
+  <!-- Rear left wheel -->
+  <xacro:wheel name="rear_left_wheel" parent_link="base_link" xyz="${rear_left_wheel_xyz}" rpy="0 0 0" mesh_scale="${wheel_joint_scale}" mass="${wheel_mass}" ixx="${wheel_inertia_ixx}" ixy="${wheel_inertia_ixy}" ixz="${wheel_inertia_ixz}" iyy="${wheel_inertia_iyy}" iyz="${wheel_inertia_iyz}" izz="${wheel_inertia_izz}"/>
+  <xacro:wheel_motor name="rear_left_wheel" parent_link="rear_left_wheel_link" offset="${wheel_motor_offset}" mesh_scale="${wheel_motor_scale}" mass="${wheel_motor_mass}" ixx="${wheel_motor_inertia_ixx}" ixy="${wheel_motor_inertia_ixy}" ixz="${wheel_motor_inertia_ixz}" iyy="${wheel_motor_inertia_iyy}" iyz="${wheel_motor_inertia_iyz}" izz="${wheel_motor_inertia_izz}"/> <!-- Renamed from wheel_mesh -->
+
+  <!-- Rear right wheel -->
+  <xacro:wheel name="rear_right_wheel" parent_link="base_link" xyz="${rear_right_wheel_xyz}" rpy="0 0 3.14" mesh_scale="${wheel_joint_scale}" mass="${wheel_mass}" ixx="${wheel_inertia_ixx}" ixy="${wheel_inertia_ixy}" ixz="${wheel_inertia_ixz}" iyy="${wheel_inertia_iyy}" iyz="${wheel_inertia_iyz}" izz="${wheel_inertia_izz}"/>
+  <xacro:wheel_motor name="rear_right_wheel" parent_link="rear_right_wheel_link" offset="${wheel_motor_offset}" mesh_scale="${wheel_motor_scale}" mass="${wheel_motor_mass}" ixx="${wheel_motor_inertia_ixx}" ixy="${wheel_motor_inertia_ixy}" ixz="${wheel_motor_inertia_ixz}" iyy="${wheel_motor_inertia_iyy}" iyz="${wheel_motor_inertia_iyz}" izz="${wheel_motor_inertia_izz}"/> <!-- Renamed from wheel_mesh -->
+
+  <!-- Rear steering joint -->
+  <joint name="rear_steering" type="continuous"> <!-- Renamed from rear_left_wheel_joint -->
+    <parent link="base_link"/>
+    <child link="rear_left_wheel_link"/>
+    <origin xyz="${rear_left_wheel_xyz}" rpy="0 0 0"/>
+    <axis xyz="0 0 1"/>
+  </joint>
+
+  <!-- Rear right wheel joint -->
+  <joint name="rear_right_wheel_joint" type="continuous"> <!-- Returned to previous name -->
+    <parent link="base_link"/>
+    <child link="rear_right_wheel_link"/>
+    <origin xyz="${rear_right_wheel_xyz}" rpy="0 0 3.14"/>
+    <axis xyz="0 0 1"/>
+    <mimic joint="rear_steering" multiplier="1.0" offset="0.0"/> <!-- Mimics rear steering -->
+  </joint>
+
+  <!-- Transmission for front left wheel -->
+  <transmission name="front_left_wheel_trans">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="front_left_wheel_joint">
+      <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="front_left_wheel_motor">
+      <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+
+  <!-- Transmission for front right wheel -->
+  <transmission name="front_right_wheel_trans">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="front_right_wheel_joint">
+      <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="front_right_wheel_motor">
+      <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+
+  <!-- Transmission for rear left wheel -->
+  <transmission name="rear_left_wheel_trans">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="rear_left_wheel_joint">
+      <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="rear_left_wheel_motor">
+      <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+
+  <!-- Transmission for rear right wheel -->
+  <transmission name="rear_right_wheel_trans">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="rear_right_wheel_joint">
+      <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="rear_right_wheel_motor">
+      <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+
+  <!-- Transmission for front steering -->
+  <transmission name="front_steering_trans">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="front_steering">
+      <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="front_steering_motor">
+      <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+
+  <!-- Transmission for rear steering -->
+  <transmission name="rear_steering_trans">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="rear_steering">
+      <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="rear_steering_motor">
+      <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+
+</robot>
