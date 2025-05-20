@@ -44,9 +44,15 @@
   <xacro:property name="wheel_motor_offset" value="0 0.04 -0.15"/> <!-- Renamed from wheel_mesh_offset -->
 
   <!-- File paths -->
-  <xacro:property name="body_base_mesh" value="BODY_BASE.gltf"/>
-  <xacro:property name="wheel_joint_mesh" value="WHEEL_JOINT.gltf"/>
-  <xacro:property name="wheel_motor" value="WHEEL.gltf"/> <!-- Renamed from wheel_mesh -->
+
+ 
+  <xacro:property name="body_base_mesh" value="package://klr750/meshes/GTLF/BODY_BASE.gltf"/>
+  <xacro:property name="wheel_joint_mesh" value="package://klr750/meshes/GTLF/WHEEL_JOINT.gltf"/>
+  <xacro:property name="wheel_motor" value="package://klr750/meshes/GTLF/WHEEL.gltf"/>
+  <xacro:property name="body_base_mesh_col" value="package://klr750//meshes/STL/BODY_BASE.STL"/>
+  <xacro:property name="wheel_joint_mesh_col" value="package://klr750//meshes/STL/WHEEL_JOINT.STL"/> <!-- Fixed path -->
+  <xacro:property name="wheel_motor_col" value="package://klr750//meshes/STL/WHEEL.STL"/>
+  
 
   <!-- Macro for wheel setup -->
   <xacro:macro name="wheel" params="name parent_link xyz rpy mesh_scale mass ixx ixy ixz iyy iyz izz">
@@ -65,7 +71,7 @@
         </geometry>
       </visual>
       <collision>
-        <origin xyz="0.0 0.0 0.0" rpy="0 0 0"/>
+        <origin xyz="0.0 0.0 0.0" rpy="0 3.14 0"/>
         <geometry>
           <mesh filename="${wheel_joint_mesh}" scale="${mesh_scale}"/>
         </geometry>
@@ -117,7 +123,7 @@
       </geometry>
     </visual>
     <collision>
-      <origin xyz="0.0 0.0 0.0" rpy="0 0 0"/>
+      <origin xyz="0.0 0.0 ${base_height}" rpy="3.14 0 0"/>
       <geometry>
         <mesh filename="${body_base_mesh}" scale="1.0 1.0 1.0"/>
       </geometry>
@@ -251,4 +257,40 @@
     </actuator>
   </transmission>
 
+
+  <!-- ros2_control hardware interface -->
+  <ros2_control name="KLR750System" type="system">
+    <hardware>
+      <plugin>gazebo_ros2_control/GazeboSystem</plugin>
+    </hardware>
+    <joint name="front_left_wheel_joint">
+      <command_interface name="velocity"/>
+      <state_interface name="velocity"/>
+      <state_interface name="position"/>
+    </joint>
+    <joint name="front_right_wheel_joint">
+      <command_interface name="velocity"/>
+      <state_interface name="velocity"/>
+      <state_interface name="position"/>
+    </joint>
+    <joint name="rear_left_wheel_joint">
+      <command_interface name="velocity"/>
+      <state_interface name="velocity"/>
+      <state_interface name="position"/>
+    </joint>
+    <joint name="rear_right_wheel_joint">
+      <command_interface name="velocity"/>
+      <state_interface name="velocity"/>
+      <state_interface name="position"/>
+    </joint>
+    <!-- Add steering joints if you want to control them -->
+    <joint name="front_steering">
+      <command_interface name="position"/>
+      <state_interface name="position"/>
+    </joint>
+    <joint name="rear_steering">
+      <command_interface name="position"/>
+      <state_interface name="position"/>
+    </joint>
+  </ros2_control>
 </robot>
